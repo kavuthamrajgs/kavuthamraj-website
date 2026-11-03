@@ -1,9 +1,10 @@
 import { framerCases } from "./framer-cases.mjs";
+import "../static/qr.js";
 import { writeFileSync, mkdirSync, rmSync, cpSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import {
   profile, projects, experience, skills, education, cases,
-  heroCopy, impact, strengths, featured, testimonials,
+  heroCopy, impact, strengths, featured, testimonials, qrRaj,
 } from "./data.mjs";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
@@ -87,6 +88,60 @@ const footer = (r) => `<footer class="foot">
 const sec = (title, accentTail = "") =>
   `<h2 class="disp h-sec mask"><span>${esc(title)}${accentTail ? ` <em class="acc">${esc(accentTail)}</em>` : ""}</span></h2>`;
 
+
+// ---------- QR Raj: live studio, spotlight and case page ----------
+const QRR = globalThis.QRR;
+const PATTERN_ICONS = {
+  fluid: '<svg viewBox="0 0 16 16"><path d="M3 5.5a2.5 2.5 0 0 1 5 0V8h2.5a2.5 2.5 0 0 1 0 5h-5A2.5 2.5 0 0 1 3 10.5z"/></svg>',
+  rounded: '<svg viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5" rx="1.6"/><rect x="9" y="2" width="5" height="5" rx="1.6"/><rect x="2" y="9" width="5" height="5" rx="1.6"/></svg>',
+  dots: '<svg viewBox="0 0 16 16"><circle cx="4.5" cy="4.5" r="2.5"/><circle cx="11.5" cy="4.5" r="2.5"/><circle cx="4.5" cy="11.5" r="2.5"/><circle cx="11.5" cy="11.5" r="2.5"/></svg>',
+  square: '<svg viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5"/><rect x="9" y="9" width="5" height="5"/><rect x="2" y="9" width="5" height="5"/></svg>',
+};
+const qrStudio = ({ text = qrRaj.live, pattern = "fluid", way = "indigo", id = "qrs-ssr", tone = "" } = {}) => {
+  const { svg, info } = QRR.toSVG(text, { pattern, way, id });
+  return `<div class="qrs ${tone}" data-qr-studio data-pattern="${pattern}" data-way="${way}">
+  <div class="qrs-top"><span class="qrs-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="qrs-title">QR Raj <em>Design studio</em></span><span class="qrs-badge">Static code</span></div>
+  <div class="qrs-stage">
+    <div class="qrs-code">${svg}</div>
+    <span class="qrs-scan" aria-hidden="true"></span><span class="qrs-br" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    <p class="qrs-decoded"><span>Encodes</span><b>${esc(text)}</b></p>
+  </div>
+  <div class="qrs-ctl">
+    <label class="qrs-field"><span class="qrs-lab">Link or text</span><span class="qrs-inwrap"><input class="qrs-in" type="text" inputmode="url" autocomplete="off" spellcheck="false" maxlength="120" value="${esc(text)}" aria-describedby="${id}-info"><small class="qrs-count">${[...text].length}/120</small></span></label>
+    <div class="qrs-row"><span class="qrs-lab" id="${id}-pl">Pattern</span><div class="qrs-seg" role="group" aria-labelledby="${id}-pl">${QRR.PATTERNS.map((p) => `<button type="button" data-pattern="${p}" aria-pressed="${p === pattern}">${PATTERN_ICONS[p]}<span>${p[0].toUpperCase() + p.slice(1)}</span></button>`).join("")}</div></div>
+    <div class="qrs-row"><span class="qrs-lab" id="${id}-cl">Colour</span><div class="qrs-sw" role="group" aria-labelledby="${id}-cl">${Object.entries(QRR.WAYS).map(([k, w]) => `<button type="button" data-way="${k}" aria-pressed="${k === way}" aria-label="${w.label}" title="${w.label}" style="--sw:linear-gradient(135deg,${w.stops.join(",")})"></button>`).join("")}</div></div>
+    <div class="qrs-foot"><p class="qrs-info" id="${id}-info" aria-live="polite">Static code · version ${info.version} · ${info.size} × ${info.size} modules · error correction H</p><div class="qrs-act"><button type="button" class="qrs-reset">Reset</button><button type="button" class="qrs-dl">Download PNG</button></div></div>
+  </div>
+</div>`;
+};
+const repoint = (tone = "") => {
+  const { svg } = QRR.toSVG(qrRaj.live, { pattern: "rounded", way: "indigo", id: "rp" + tone, quiet: 2, label: "The same printed code" });
+  return `<figure class="rp ${tone}" data-repoint>
+  <div class="rp-poster"><div class="rp-code">${svg}</div><span class="rp-frame">Scan me</span></div>
+  <div class="rp-wire" aria-hidden="true"><i></i></div>
+  <div class="rp-card"><span class="rp-lab">Points to</span><ul class="rp-dest">${qrRaj.destinations.map((d) => `<li><span class="rp-host">go.affinityx</span>${esc(d)}</li>`).join("")}</ul><span class="rp-edit">Edited in the dashboard</span></div>
+  <figcaption>Same printed code. New destination. <span>Illustration</span></figcaption>
+</figure>`;
+};
+const marquee = (items) => `<div class="qrx-marquee" aria-hidden="true"><div>${[0, 1].map(() => items.map((t) => `<span>${esc(t)}</span>`).join("")).join("")}</div></div>`;
+
+const qrSpotlight = () => `<section id="qr-raj" class="s-black qrx" aria-labelledby="qrx-h">
+  <div class="qrx-bg" aria-hidden="true"></div>
+  <div class="wrap qrx-grid">
+    <div class="qrx-copy">
+      <p class="qrx-eyebrow reveal"><span class="qrx-live" aria-hidden="true"></span>Live product · Designed and built end to end</p>
+      <h2 id="qrx-h" class="disp qrx-h mask"><span>${[..."QR RAJ"].map((c, i) => c === " " ? '<i class="sp"> </i>' : `<i style="--i:${i}">${c}</i>`).join("")}</span></h2>
+      <p class="qrx-lead reveal">QR codes you can change <em>after</em> you print them.</p>
+      <p class="qrx-text reveal">A dynamic QR studio for AffinityX. I designed it, wrote its design system, and built it, front end to database. The printed code never changes; where it points is a row you can edit, and every scan lands on the dashboard as it happens.</p>
+      <ul class="qrx-stats reveal">${qrRaj.stats.map(([b, t], i) => `<li style="--d:${i * 80}ms"><b>${esc(b)}</b>${esc(t)}</li>`).join("")}</ul>
+      <div class="qrx-cta reveal"><a class="btn qrx-btn magnetic" href="${qrRaj.live}" target="_blank" rel="noopener">Open QR Raj <span aria-hidden="true">↗</span></a><a class="btn line magnetic" href="work/qr-raj.html">Read the case study</a></div>
+      <p class="qrx-note reveal">${esc(qrRaj.demo)}</p>
+    </div>
+    <div class="qrx-side reveal">${qrStudio({ id: "qrs-home" })}<p class="qrx-try">Try it: type anything. The code is real. Point your camera at it.</p></div>
+  </div>
+  ${marquee(qrRaj.types)}
+</section>`;
+
 const featuredKeys = new Set(featured.map((f) => f.key));
 const conceptRank = (p) => { const c = framerCases[p.case] || {}; return /self-initiated|concept/i.test(c.client || "") || /hour/i.test(c.duration || "") ? 1 : 0; };
 const more = projects.filter((p) => !featuredKeys.has(p.key)).sort((a, b) => conceptRank(a) - conceptRank(b));
@@ -117,6 +172,8 @@ const home = () => `${head({ title: `${profile.name} | ${profile.role}`, desc: p
     <p class="disp stmt acc" data-words>End to end.</p>
   </div>
 </section>
+
+${qrSpotlight()}
 
 <section id="work" class="s-dark pad center">
   <div class="wrap">
@@ -257,6 +314,7 @@ ${testimonials.some((t) => !t.placeholder) ? `<section class="s-light pad">
     </div>
   </div>
 </section>
+<script src="qr.js" defer></script><script src="qr-studio.js" defer></script>
 ${footer("")}`;
 
 const casePage = (key) => {
@@ -333,6 +391,75 @@ const fcPage = (key) => {
 ${footer(r)}`;
 };
 
+
+const qrPage = () => {
+  const c = qrRaj, r = "../";
+  const h2 = (t, n) => `<h2 class="cs-h2 disp reveal"><span class="qn mono">${n}</span>${esc(t)}</h2>`;
+  return `${head({ title: `${c.title} | ${profile.short}`, desc: c.summary, depth: 1 })}
+<div class="s-light">${header(r)}</div>
+<main class="case qcase">
+  <a class="back mono rise" href="${r}index.html#qr-raj">← All work</a>
+  <p class="mono eyebrow rise" style="--d:80ms"><span class="qrx-live" aria-hidden="true"></span>Live product · Case study</p>
+  <h1 class="disp case-title rise" style="--d:160ms">${esc(c.title)}</h1>
+  <p class="lead rise" style="--d:260ms">${esc(c.lead)}</p>
+  <p class="lead-sub rise" style="--d:340ms">${esc(c.summary)}</p>
+  <div class="qhero s-black qrx reveal"><div class="qrx-bg" aria-hidden="true"></div>${repoint("big")}</div>
+  <dl class="meta">${c.meta.map(([k, v], i) => `<div class="reveal" style="--d:${i * 90}ms"><dt class="mono">${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
+  <div class="tldr reveal">${c.tldr.map(([k, v]) => `<div><dt class="mono">${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</div>
+  <div class="cs">
+    ${h2("The one idea", "01")}
+    <p class="cs-p reveal">A <b>static</b> QR code is a picture of your data. Change the destination and every code already printed becomes landfill.</p>
+    <p class="cs-p reveal">A <b>dynamic</b> code encodes a short link you own. The picture never changes; where it points is a database row. So the poster stays on the wall, the sticker stays on the box, and you stay in control. You also find out how many people actually scanned it. That distinction is the whole product, and everything below serves it.</p>
+    <div class="qcmp reveal">
+      <div><span class="mono">Static</span><strong>The data is the picture.</strong><p>Nothing to edit, nothing to count. Wi-Fi and location codes stay static on purpose.</p></div>
+      <div class="on"><span class="mono">Dynamic</span><strong>The picture is a pointer.</strong><p>Repoint it any time, switch it off, and watch scans arrive live. Contact cards, apps, link trees and coupons are always dynamic.</p></div>
+    </div>
+
+    ${h2("Try the studio", "02")}
+    <p class="cs-p reveal">This runs the same idea as the product's sign-in card: type a link and get a real code. It is static, and says so, because a dynamic one needs a short link that exists on the server and belongs to someone.</p>
+    <div class="qtry reveal">${qrStudio({ id: "qrs-case", pattern: "rounded", tone: "light" })}</div>
+
+    ${h2("What you can make", "03")}
+    <p class="cs-p reveal">Thirteen types, each with its own guided form, validation and encoder.</p>
+    <ul class="cs-chips qtypes reveal">${c.types.map((t, i) => `<li style="--d:${i * 40}ms">${esc(t)}</li>`).join("")}</ul>
+    <p class="cs-p reveal">Then style it, save it as a template, and export it print-ready.</p>
+    <ul class="cs-chips reveal">${c.styling.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>
+
+    ${h2("How a scan resolves", "04")}
+    <p class="cs-p reveal">A scan never touches the front end first. Static codes never appear here at all: they carry their payload in the image and never reach the server, which is exactly why nothing about them can be edited or counted.</p>
+    <ol class="qflow reveal">${c.flow.map(([t, d], i) => `<li style="--d:${i * 120}ms"><span class="qf-n">${String(i + 1).padStart(2, "0")}</span><strong>${esc(t)}</strong><p>${esc(d)}</p></li>`).join("")}</ol>
+
+    ${h2("Decisions I'd defend", "05")}
+    <p class="cs-p reveal">Most of the design work was choosing what the product should refuse to do, and then explaining the refusal on screen.</p>
+    ${c.decisions.map(([l, x]) => `<div class="cs-item reveal"><strong>${esc(l)}</strong><p>${esc(x)}</p></div>`).join("")}
+    <figure class="qbars reveal" aria-label="Before and after: how the scan chart was relabelled">
+      <div><span class="mono">Before</span><strong>Unique visitors</strong><div class="qb">${[3, 5, 2, 6, 4, 7, 5].map((v) => `<i style="--v:${v}"></i>`).join("")}</div><small>Bars also said “Unique visitors”, and added up to more than the headline.</small></div>
+      <div class="on"><span class="mono">After</span><strong>Distinct devices, whole range</strong><div class="qb">${[[2, 1], [3, 2], [2, 0], [4, 2], [3, 1], [4, 3], [3, 2]].map(([a, b]) => `<i style="--v:${a + b};--a:${a / (a + b || 1)}"></i>`).join("")}</div><small><b class="k1"></b>Visitors that day <b class="k2"></b>Repeat scans</small></div>
+      <figcaption>Same data, new labels. Illustration, not real figures.</figcaption>
+    </figure>
+
+    ${h2("A design system to carry", "06")}
+    <p class="cs-p reveal">${esc(c.system.intro)}</p>
+    <div class="qramp reveal">${c.system.ramp.map(([k, v]) => `<div style="--c:${v}"><span>${k}</span><code>${v}</code></div>`).join("")}</div>
+    ${c.system.rules.map(([l, x]) => `<div class="cs-item reveal"><strong>${esc(l)}</strong><p>${esc(x)}</p></div>`).join("")}
+
+    ${h2("Built not to fail quietly", "07")}
+    <p class="cs-p reveal">I built the front end, the API and the schema too. A few choices there are design decisions in another material.</p>
+    ${c.engineering.map(([l, x]) => `<div class="cs-item reveal"><strong>${esc(l)}</strong><p>${esc(x)}</p></div>`).join("")}
+    <ul class="cs-chips reveal">${c.stack.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>
+  </div>
+  <section class="cs-cta qcta reveal">
+    <p class="mono">See it live</p>
+    <h2 class="disp">Open QR Raj.</h2>
+    <p>${esc(c.demo)}</p>
+    <div class="btn-row"><a class="btn fill-brown magnetic" href="${c.live}" target="_blank" rel="noopener">${esc(c.liveLabel)} ↗</a><a class="btn line-dark magnetic" href="mailto:${esc(profile.email)}">Email me</a></div>
+  </section>
+  <a class="next-case reveal" href="erp.html"><span class="mono">Next case study</span><strong class="disp">${esc((projects.find((p) => p.case === "erp") || {}).title || "ERP")}</strong><span aria-hidden="true">→</span></a>
+</main>
+<script src="${r}qr.js" defer></script><script src="${r}qr-studio.js" defer></script>
+${footer(r)}`;
+};
+
 const notFound = () => `${head({ title: `Page not found | ${profile.short}`, desc: "This page does not exist." })}
 <div class="s-light">${header("")}</div>
 <main class="case"><p class="mono eyebrow">404</p><h1 class="disp case-title">Not found</h1><p class="lead">That page doesn't exist. <a href="index.html"><u>Back home</u></a>.</p></main>
@@ -343,12 +470,13 @@ mkdirSync(OUT + "work", { recursive: true });
 writeFileSync(OUT + "index.html", home());
 for (const k of Object.keys(cases)) writeFileSync(OUT + `work/${k}.html`, casePage(k));
 for (const k of Object.keys(framerCases)) writeFileSync(OUT + `work/${k}.html`, fcPage(k));
+writeFileSync(OUT + "work/qr-raj.html", qrPage());
 writeFileSync(OUT + "404.html", notFound());
-for (const f of ["styles.css", "main.js", "favicon.svg", "profile.webp", "profile-portrait.jpg"]) cpSync(STATIC + f, OUT + f);
+for (const f of ["styles.css", "main.js", "qr.js", "qr-studio.js", "favicon.svg", "profile.webp", "profile-portrait.jpg"]) cpSync(STATIC + f, OUT + f);
 if (hasResume) cpSync(STATIC + "resume.pdf", OUT + "resume.pdf");
 cpSync(STATIC + "work", OUT + "work", { recursive: true });
 writeFileSync(OUT + "robots.txt", `User-agent: *\nAllow: /\nSitemap: ${profile.url}/sitemap.xml\n`);
-const urls = ["/", ...new Set([...Object.keys(cases), ...Object.keys(framerCases)])].map((u) => (u === "/" ? u : `/work/${u}.html`));
+const urls = ["/", ...new Set([qrRaj.key, ...Object.keys(cases), ...Object.keys(framerCases)])].map((u) => (u === "/" ? u : `/work/${u}.html`));
 writeFileSync(OUT + "sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map((u) => `<url><loc>${profile.url}${u}</loc></url>`).join("")}</urlset>\n`);
 if (testimonials.some((t) => t.placeholder)) console.warn("WARNING: placeholder testimonials are still in src/data.mjs. Replace them before going live.");
 console.log(`Built ${urls.length + 1} pages → dist/`);

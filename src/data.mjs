@@ -144,9 +144,9 @@ export const experience = [
   {
     role: "Senior UI/UX Designer",
     company: "AffinityX",
-    tags: ["B2B SaaS", "ERP", "Order management"],
+    tags: ["B2B SaaS", "ERP", "Order management", "Dynamic QR"],
     dates: "Sep 2025 to present",
-    note: "Co-owns UX and UI for Titan, a B2B SaaS back-office and ERP product. Redesigning high-volume order screens for the product.",
+    note: "Co-owns UX and UI for Titan, a B2B SaaS back-office and ERP product. Redesigning high-volume order screens for the product. Also designed and built QR Raj, AffinityX's dynamic QR code studio, end to end.",
   },
   {
     role: "Founding Member and Design Lead",
@@ -247,7 +247,7 @@ export const cases = {
 // ---------- sections for the editorial home page ----------
 export const heroCopy = [
   "I design end-to-end products for B2B SaaS, ERP and consumer apps, so they are clear to use and hard to forget.",
-  "Now Senior UI/UX Designer at AffinityX, working on Titan, a B2B SaaS back-office product.",
+  "Now Senior UI/UX Designer at AffinityX, working on Titan, a B2B SaaS back-office product, and QR Raj, a dynamic QR studio I designed and built.",
 ];
 
 // Only figures with a public or published source.
@@ -279,3 +279,64 @@ export const testimonials = [
   { name: "Design Lead", role: "SRM Technologies", quote: "Replace with a real recommendation about your work on enterprise apps and the design system.", placeholder: true },
 ];
 
+
+
+// QR Raj: AffinityX's dynamic QR studio, designed and built end to end.
+// Source: the AffinityX-QR repository (README, CHANGELOG, AUTHORS, DESIGN_SYSTEM.md, UI_PLAYBOOK.md).
+// No scan figures here on purpose: the product removed invented numbers from its own demo, and so does this page.
+export const qrRaj = {
+  key: "qr-raj",
+  name: "QR Raj",
+  title: "QR Raj: dynamic QR codes for AffinityX",
+  lead: "QR codes you can change after you print them.",
+  summary: "I designed and built AffinityX's QR studio end to end: thirteen code types, a live design studio, and dynamic codes you can repoint after they are printed, with every scan landing on the dashboard as it happens.",
+  live: "https://qr.kavuthamraj.com",
+  liveLabel: "qr.kavuthamraj.com",
+  demo: "No AffinityX account? Choose “Login as Tester” on the sign-in screen. It opens a shared demo with sample codes and sample scan data.",
+  stats: [["13", "code types"], ["2048px", "print-ready export"], ["Live", "scan counts"], ["1", "designer and developer"]],
+  meta: [
+    ["Role", "Designer and developer, end to end. Sole author"],
+    ["Product", "Internal tool for AffinityX, live at qr.kavuthamraj.com"],
+    ["Scope", "Product design, design system, React front end, FastAPI back end, Postgres schema"],
+    ["Status", "Live. Version 1.1.0, September 2026"],
+  ],
+  tldr: [
+    ["Problem", "A printed QR code is a picture of its data. Change the link and every poster, sticker and box already printed is wrong."],
+    ["Idea", "Encode a short link we own instead. The picture never changes; where it points is a database row anyone on the team can edit."],
+    ["Outcome", "A live internal tool: 13 code types, a design studio, print-ready export and real-time scan analytics, behind company sign-in."],
+  ],
+  types: ["Website URL", "Contact card", "Wi-Fi", "Text", "Email", "SMS", "Phone", "WhatsApp", "Event", "App", "Link tree", "Coupon", "Feedback"],
+  styling: ["6 body patterns", "Corner styles", "Separate corner and body colours", "Gradients", "6 frames with custom call to action", "Centre logo or your own upload", "Reusable templates", "PNG, JPEG, SVG, WEBP at 2048px"],
+  destinations: ["/menu/spring", "/menu/summer", "/events/launch-night"],
+  flow: [
+    ["Scan", "A phone opens the short link. It hits the API first, because the API owns every short link."],
+    ["Look up", "The API finds the code by its slug in Postgres."],
+    ["Count", "The scan is recorded before the redirect, so nothing is lost, and the owner's dashboard ticks live over a WebSocket."],
+    ["Land", "Codes with a destination redirect straight through. The rest open a branded page: contact card, Wi-Fi, event or coupon."],
+  ],
+  decisions: [
+    ["The short link is fixed once saved", "The destination, design, name and on/off switch stay editable forever. The slug is what's printed on the poster, so changing it would orphan every copy instead of repointing them. It is editable while you create the code, read-only after, and the screen says why instead of leaving people to find out."],
+    ["Two right numbers, labelled so they look right", "The analytics headline counts distinct devices across the whole range; each bar counts devices that day. A phone that scans on three days is one visitor in the first and three in the second, so both were correct and looked contradictory under the same label. The bars became Visitors that day plus Repeat scans. No number changed, only the words."],
+    ["A demo that tells the truth", "The sign-in card started as a mockup with invented scan figures, then a still image. It now renders a real code through the product's own pipeline, says it is static, and says what dynamic adds. Someone can use the product before deciding whether to trust it with an account."],
+    ["Bounded input keeps the promise", "A centre logo forces error correction H, and longer links mean denser codes. So the demo field is bounded, keeping “point your camera at it” true rather than hedging the sentence."],
+    ["Interactive things sit flat", "The old demo card tilted in 3D. That suited a display object, but on something you type into it blurs the text and moves the hit area away from where it is painted, so the operated card sits flat."],
+    ["Save without downloading", "Editing a code offers Save as well as Save and download, because fixing a typo should not mean taking a second copy of an image you already have."],
+    ["Refusals that say what works", "Sign-in is limited to AffinityX addresses, on every route rather than only the Google button. A refused colleague gets a message that names both company domains, so they know what will work."],
+  ],
+  system: {
+    intro: "I wrote the design system down as one document that designers, developers and AI assistants can all follow, and built it so other AffinityX products can adopt it while keeping their own brand colour.",
+    ramp: [["100", "#E4E6F3"], ["200", "#C7CBE7"], ["300", "#9EA5D6"], ["400", "#6E78C1"], ["500", "#3E4BAC"], ["600", "#364196"], ["700", "#2D367C"], ["800", "#232A60"], ["900", "#1B204A"]],
+    rules: [
+      ["10px radius on almost everything", "The most repeated value in the product, 218 uses, and the fastest way to make a new screen belong."],
+      ["Hairlines before shadows", "Surfaces are separated by a border first. Shadow is kept for things that genuinely float."],
+      ["One accent, used sparingly", "Indigo marks the path forward: the primary action, the current place, the live state."],
+      ["Skeletons, not spinners", "And never a confident zero while data is still loading."],
+    ],
+  },
+  engineering: [
+    ["Refuses to boot on a bad deploy", "If the database is behind the code's migrations, the API will not start and names the missing revisions, instead of failing three hours later from deep inside a query."],
+    ["Guards the signing key", "In production, placeholder or short secrets are rejected at startup, because that key is a full authentication bypass in the wrong hands."],
+    ["Printed codes resolve forever", "A code in the world carries whatever short-link host was current when it was printed, so old hosts must keep resolving. Retiring one would kill every code already out there."],
+  ],
+  stack: ["React 18", "Vite 5", "Tailwind 3", "TanStack Query", "FastAPI", "SQLAlchemy 2", "Postgres", "WebSockets", "Vitest", "pytest"],
+};
