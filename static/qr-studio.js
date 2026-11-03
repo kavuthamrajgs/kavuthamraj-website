@@ -118,3 +118,38 @@
     });
   }
 })();
+
+/* QR Raj page: the hero poster tilts toward the pointer, numbers count up when they arrive */
+(() => {
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!reduce && matchMedia("(pointer: fine)").matches) {
+    document.querySelectorAll("[data-tilt3d]").forEach((stage) => {
+      const poster = stage.querySelector(".qp-poster");
+      const hero = stage.closest("section") || stage;
+      hero.addEventListener("pointermove", (e) => {
+        const r = stage.getBoundingClientRect();
+        const px = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / (r.width / 1.2)));
+        const py = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height / 2)) / (r.height / 1.2)));
+        poster.style.setProperty("--ry", (px * 18).toFixed(2) + "deg");
+        poster.style.setProperty("--rx", (-py * 14).toFixed(2) + "deg");
+        poster.style.setProperty("--gx", (50 - px * 40).toFixed(1) + "%");
+      }, { passive: true });
+      hero.addEventListener("pointerleave", () => { poster.style.removeProperty("--ry"); poster.style.removeProperty("--rx"); });
+    });
+  }
+  const nums = [...document.querySelectorAll("[data-count]")];
+  if (!nums.length || reduce || !("IntersectionObserver" in window)) return;
+  const io = new IntersectionObserver((es) => es.forEach((e) => {
+    if (!e.isIntersecting) return;
+    io.unobserve(e.target);
+    const el = e.target, to = Number(el.dataset.count), t0 = performance.now(), dur = 1600;
+    const step = (t) => {
+      const k = Math.min(1, (t - t0) / dur), v = Math.round(to * (1 - Math.pow(1 - k, 4)));
+      el.textContent = String(v);
+      if (k < 1) requestAnimationFrame(step);
+    };
+    el.textContent = "0";
+    requestAnimationFrame(step);
+  }), { threshold: 0.6 });
+  nums.forEach((n) => io.observe(n));
+})();

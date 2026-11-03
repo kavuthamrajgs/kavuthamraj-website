@@ -392,70 +392,151 @@ ${footer(r)}`;
 };
 
 
+const QICON = {
+  wifi: '<path d="M2 8.5a14 14 0 0 1 20 0M5.5 12a9 9 0 0 1 13 0M9 15.5a4 4 0 0 1 6 0"/><circle cx="12" cy="19" r="1.2"/>',
+  card: '<rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="11" r="2.2"/><path d="M5.8 16.5a3.6 3.6 0 0 1 6.4 0M14 10h4M14 13.5h3"/>',
+  event: '<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  coupon: '<path d="M3 8a2 2 0 0 0 0 4v0a2 2 0 0 1 0 4v1h18v-1a2 2 0 0 1 0-4 2 2 0 0 0 0-4V7H3z"/><path d="M14 7v10" stroke-dasharray="2 2"/>',
+  chat: '<path d="M4 18.5 5.3 15A8 8 0 1 1 8.8 18z"/>',
+  link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+};
+const qic = (k) => `<svg viewBox="0 0 24 24" aria-hidden="true">${QICON[k]}</svg>`;
+const LAYERS = [
+  ["Product and UX", "Flows, thirteen guided forms, every empty, loading and error state, and the words on each button."],
+  ["Design system", "Tokens, components, accessibility and copy rules, written down so other products can adopt it."],
+  ["Front end", "React 18, Vite, Tailwind and TanStack Query, with a live design studio and print-ready export."],
+  ["API", "FastAPI with Google sign-in, short-link redirects, and WebSockets that push each scan to the dashboard."],
+  ["Database", "Postgres, 33 tables, every change shipped as a reviewed Alembic migration."],
+  ["Deploy and operations", "Cloudflare Pages, Render and Neon, nightly backups, and a keepalive worker."],
+];
+
 const qrPage = () => {
   const c = qrRaj, r = "../";
-  const h2 = (t, n) => `<h2 class="cs-h2 disp reveal"><span class="qn mono">${n}</span>${esc(t)}</h2>`;
+  const sh = (n, kicker, title, acc) => `<p class="qp-k reveal"><span>${n}</span>${esc(kicker)}</p><h2 class="disp qp-h mask"><span>${esc(title)}${acc ? ` <em>${esc(acc)}</em>` : ""}</span></h2>`;
+  const hero = QRR.toSVG(c.live, { pattern: "fluid", way: "indigo", id: "qph", quiet: 2, label: "QR code that opens QR Raj at qr.kavuthamraj.com" });
+  const end = QRR.toSVG(c.live, { pattern: "rounded", way: "indigo", id: "qpe", quiet: 2, label: "Scan to open QR Raj at qr.kavuthamraj.com" });
+  const chips = [["wifi", "Wi-Fi", "c1"], ["card", "Contact card", "c2"], ["event", "Event", "c3"], ["coupon", "Coupon", "c4"], ["chat", "WhatsApp", "c5"], ["link", "Link tree", "c6"]];
+  const counts = [[13, "", "code types, each with its own form"], [33, "", "database tables in the schema"], [2048, "px", "print-ready export"], [1, "", "person, end to end"]];
   return `${head({ title: `${c.title} | ${profile.short}`, desc: c.summary, depth: 1 })}
-<div class="s-light">${header(r)}</div>
-<main class="case qcase">
-  <a class="back mono rise" href="${r}index.html#qr-raj">← All work</a>
-  <p class="mono eyebrow rise" style="--d:80ms"><span class="qrx-live" aria-hidden="true"></span>Live product · Case study</p>
-  <h1 class="disp case-title rise" style="--d:160ms">${esc(c.title)}</h1>
-  <p class="lead rise" style="--d:260ms">${esc(c.lead)}</p>
-  <p class="lead-sub rise" style="--d:340ms">${esc(c.summary)}</p>
-  <div class="qhero s-black qrx reveal"><div class="qrx-bg" aria-hidden="true"></div>${repoint("big")}</div>
-  <dl class="meta">${c.meta.map(([k, v], i) => `<div class="reveal" style="--d:${i * 90}ms"><dt class="mono">${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
-  <div class="tldr reveal">${c.tldr.map(([k, v]) => `<div><dt class="mono">${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</div>
-  <div class="cs">
-    ${h2("The one idea", "01")}
-    <p class="cs-p reveal">A <b>static</b> QR code is a picture of your data. Change the destination and every code already printed becomes landfill.</p>
-    <p class="cs-p reveal">A <b>dynamic</b> code encodes a short link you own. The picture never changes; where it points is a database row. So the poster stays on the wall, the sticker stays on the box, and you stay in control. You also find out how many people actually scanned it. That distinction is the whole product, and everything below serves it.</p>
-    <div class="qcmp reveal">
-      <div><span class="mono">Static</span><strong>The data is the picture.</strong><p>Nothing to edit, nothing to count. Wi-Fi and location codes stay static on purpose.</p></div>
-      <div class="on"><span class="mono">Dynamic</span><strong>The picture is a pointer.</strong><p>Repoint it any time, switch it off, and watch scans arrive live. Contact cards, apps, link trees and coupons are always dynamic.</p></div>
+<div class="qp">
+<section class="qp-hero qrx" aria-labelledby="qp-title">
+  <div class="qrx-bg" aria-hidden="true"></div>
+  <div class="qp-head">${header(r)}</div>
+  <div class="wrap qp-hgrid">
+    <div class="qp-hcopy">
+      <a class="qp-back rise" href="${r}index.html#qr-raj">← All work</a>
+      <p class="qrx-eyebrow rise" style="--d:80ms"><span class="qrx-live" aria-hidden="true"></span>Live product · Designed and built end to end</p>
+      <h1 id="qp-title" class="disp qp-title"><span class="line"><span class="ln" style="--d:150ms">QR</span></span><span class="line"><span class="ln" style="--d:280ms">RAJ</span></span></h1>
+      <p class="qp-tag rise" style="--d:420ms">QR codes you can change <em>after</em> you print them.</p>
+      <p class="qp-sub rise" style="--d:520ms">${esc(c.summary)}</p>
+      <div class="qrx-cta rise" style="--d:620ms"><a class="btn qrx-btn magnetic" href="${c.live}" target="_blank" rel="noopener">Open QR Raj <span aria-hidden="true">↗</span></a><a class="btn line magnetic" href="#try">Try it here</a></div>
+      <p class="qrx-note rise" style="--d:700ms">${esc(c.demo)}</p>
     </div>
-
-    ${h2("Try the studio", "02")}
-    <p class="cs-p reveal">This runs the same idea as the product's sign-in card: type a link and get a real code. It is static, and says so, because a dynamic one needs a short link that exists on the server and belongs to someone.</p>
-    <div class="qtry reveal">${qrStudio({ id: "qrs-case", pattern: "rounded", tone: "light" })}</div>
-
-    ${h2("What you can make", "03")}
-    <p class="cs-p reveal">Thirteen types, each with its own guided form, validation and encoder.</p>
-    <ul class="cs-chips qtypes reveal">${c.types.map((t, i) => `<li style="--d:${i * 40}ms">${esc(t)}</li>`).join("")}</ul>
-    <p class="cs-p reveal">Then style it, save it as a template, and export it print-ready.</p>
-    <ul class="cs-chips reveal">${c.styling.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>
-
-    ${h2("How a scan resolves", "04")}
-    <p class="cs-p reveal">A scan never touches the front end first. Static codes never appear here at all: they carry their payload in the image and never reach the server, which is exactly why nothing about them can be edited or counted.</p>
-    <ol class="qflow reveal">${c.flow.map(([t, d], i) => `<li style="--d:${i * 120}ms"><span class="qf-n">${String(i + 1).padStart(2, "0")}</span><strong>${esc(t)}</strong><p>${esc(d)}</p></li>`).join("")}</ol>
-
-    ${h2("Decisions I'd defend", "05")}
-    <p class="cs-p reveal">Most of the design work was choosing what the product should refuse to do, and then explaining the refusal on screen.</p>
-    ${c.decisions.map(([l, x]) => `<div class="cs-item reveal"><strong>${esc(l)}</strong><p>${esc(x)}</p></div>`).join("")}
-    <figure class="qbars reveal" aria-label="Before and after: how the scan chart was relabelled">
-      <div><span class="mono">Before</span><strong>Unique visitors</strong><div class="qb">${[3, 5, 2, 6, 4, 7, 5].map((v) => `<i style="--v:${v}"></i>`).join("")}</div><small>Bars also said “Unique visitors”, and added up to more than the headline.</small></div>
-      <div class="on"><span class="mono">After</span><strong>Distinct devices, whole range</strong><div class="qb">${[[2, 1], [3, 2], [2, 0], [4, 2], [3, 1], [4, 3], [3, 2]].map(([a, b]) => `<i style="--v:${a + b};--a:${a / (a + b || 1)}"></i>`).join("")}</div><small><b class="k1"></b>Visitors that day <b class="k2"></b>Repeat scans</small></div>
-      <figcaption>Same data, new labels. Illustration, not real figures.</figcaption>
-    </figure>
-
-    ${h2("A design system to carry", "06")}
-    <p class="cs-p reveal">${esc(c.system.intro)}</p>
-    <div class="qramp reveal">${c.system.ramp.map(([k, v]) => `<div style="--c:${v}"><span>${k}</span><code>${v}</code></div>`).join("")}</div>
-    ${c.system.rules.map(([l, x]) => `<div class="cs-item reveal"><strong>${esc(l)}</strong><p>${esc(x)}</p></div>`).join("")}
-
-    ${h2("Built not to fail quietly", "07")}
-    <p class="cs-p reveal">I built the front end, the API and the schema too. A few choices there are design decisions in another material.</p>
-    ${c.engineering.map(([l, x]) => `<div class="cs-item reveal"><strong>${esc(l)}</strong><p>${esc(x)}</p></div>`).join("")}
-    <ul class="cs-chips reveal">${c.stack.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>
+    <div class="qp-stage rise" style="--d:300ms" data-tilt3d>
+      <div class="qp-ring" aria-hidden="true"></div>
+      <div class="qp-poster">
+        <div class="qrs on qp-code">${hero.svg.replace('class="qr-svg"', 'class="qr-svg"')}<span class="qrs-scan" aria-hidden="true"></span></div>
+        <p class="qp-frame">Scan me <span>opens the live app</span></p>
+      </div>
+      ${chips.map(([k, t, cl], i) => `<span class="qp-chip ${cl}" style="--i:${i}" aria-hidden="true">${qic(k)}${t}</span>`).join("")}
+      <span class="qp-live" aria-hidden="true"><i></i>Scan recorded · dashboard updated</span>
+    </div>
   </div>
-  <section class="cs-cta qcta reveal">
-    <p class="mono">See it live</p>
-    <h2 class="disp">Open QR Raj.</h2>
-    <p>${esc(c.demo)}</p>
-    <div class="btn-row"><a class="btn fill-brown magnetic" href="${c.live}" target="_blank" rel="noopener">${esc(c.liveLabel)} ↗</a><a class="btn line-dark magnetic" href="mailto:${esc(profile.email)}">Email me</a></div>
-  </section>
-  <a class="next-case reveal" href="erp.html"><span class="mono">Next case study</span><strong class="disp">${esc((projects.find((p) => p.case === "erp") || {}).title || "ERP")}</strong><span aria-hidden="true">→</span></a>
-</main>
+  <a class="qp-cue" href="#qp-num" aria-label="Scroll down"><span></span></a>
+</section>
+
+<section id="qp-num" class="qp-num">
+  <div class="wrap qp-ngrid">${counts.map(([n, u, t], i) => `<div class="reveal" style="--d:${i * 110}ms"><b data-count="${n}">${n}</b><i>${u}</i><span>${esc(t)}</span></div>`).join("")}</div>
+  ${marquee(c.types)}
+</section>
+
+<section class="qp-sec">
+  <div class="wrap qp-layers">
+    <div>
+      ${sh("01", "Built end to end", "One person.", "Every layer.")}
+      <p class="qp-p reveal">No hand-off between design and build. I designed QR Raj, wrote its design system, and built every layer underneath it, from the first flow to the database and the servers it runs on.</p>
+      <ol class="qp-ll">${LAYERS.map(([t, d], i) => `<li class="reveal" style="--d:${i * 70}ms"><span>${String(i + 1).padStart(2, "0")}</span><div><strong>${esc(t)}</strong><p>${esc(d)}</p></div></li>`).join("")}</ol>
+    </div>
+    <div class="qp-stack reveal" aria-hidden="true"><div class="qp-iso">${LAYERS.map(([t], i) => `<div class="qp-slab" style="--i:${LAYERS.length - 1 - i}"><span>${esc(t)}</span></div>`).join("")}</div></div>
+  </div>
+</section>
+
+<section class="qp-sec qp-dark qrx">
+  <div class="qrx-bg" aria-hidden="true"></div>
+  <div class="wrap">
+    ${sh("02", "The one idea", "Print once.", "Repoint forever.")}
+    <p class="qp-p reveal">A static code is a picture of its data: change the link and every poster already printed is wrong. A dynamic code encodes a short link we own. The picture never changes; where it points is a row you can edit, and every scan is counted.</p>
+    <div class="qp-rp reveal">${repoint("big")}</div>
+    <div class="qcmp qp-cmp reveal">
+      <div><span class="mono">Static</span><strong>The data is the picture.</strong><p>Nothing to edit, nothing to count. Wi-Fi and location codes stay static on purpose.</p></div>
+      <div class="on"><span class="mono">Dynamic</span><strong>The picture is a pointer.</strong><p>Repoint it any time, switch it off, and watch scans arrive live.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="try" class="qp-sec qp-try">
+  <div class="wrap qp-tgrid">
+    <div>
+      ${sh("03", "Try it", "Make one.", "Right here.")}
+      <p class="qp-p reveal">Type a link and get a real code, styled the way the product styles them: gradient body, corners in their own colour, a centre mark, error correction H. Download it at 2048px.</p>
+      <p class="qp-p reveal">This demo makes static codes. Dynamic codes, scan analytics and folders live in the app.</p>
+      <div class="qrx-cta reveal"><a class="btn qrx-btn magnetic" href="${c.live}" target="_blank" rel="noopener">Use the full app <span aria-hidden="true">↗</span></a></div>
+    </div>
+    <div class="qp-studio reveal">${qrStudio({ id: "qrs-case", pattern: "fluid" })}</div>
+  </div>
+</section>
+
+<section class="qp-sec qp-dark qrx">
+  <div class="qrx-bg" aria-hidden="true"></div>
+  <div class="wrap">
+    ${sh("04", "Under the hood", "From scan", "to screen, live.")}
+    <p class="qp-p reveal">A scan never touches the front end first. It hits the API, which owns every short link, records the scan, tells the dashboard, then sends the phone on its way.</p>
+    <ol class="qp-flow reveal">${c.flow.map(([t, d], i) => `<li style="--i:${i}"><span class="qp-fi">${String(i + 1).padStart(2, "0")}</span><strong>${esc(t)}</strong><p>${esc(d)}</p></li>`).join("")}</ol>
+  </div>
+</section>
+
+<section class="qp-sec">
+  <div class="wrap">
+    ${sh("05", "Design decisions", "Decisions", "I'd defend.")}
+    <p class="qp-p reveal">Most of the design work was choosing what the product should refuse to do, then explaining the refusal on screen.</p>
+    <div class="qp-cards">${c.decisions.map(([l, x], i) => `<article class="qp-card reveal" style="--d:${(i % 2) * 100}ms"><span class="qp-cn">${String(i + 1).padStart(2, "0")}</span><h3>${esc(l)}</h3><p>${esc(x)}</p></article>`).join("")}
+      <figure class="qp-card qp-wide qbars reveal" aria-label="Before and after: how the scan chart was relabelled">
+        <div><span class="mono">Before</span><strong>Unique visitors</strong><div class="qb">${[3, 5, 2, 6, 4, 7, 5].map((v) => `<i style="--v:${v}"></i>`).join("")}</div><small>The bars also said “Unique visitors”, and added up to more than the headline.</small></div>
+        <div class="on"><span class="mono">After</span><strong>Distinct devices, whole range</strong><div class="qb">${[[2, 1], [3, 2], [2, 0], [4, 2], [3, 1], [4, 3], [3, 2]].map(([a, b]) => `<i style="--v:${a + b};--a:${a / (a + b || 1)}"></i>`).join("")}</div><small><b class="k1"></b>Visitors that day <b class="k2"></b>Repeat scans</small></div>
+        <figcaption>Same data, new labels. Illustration, not real figures.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="qp-sec qp-dark qrx">
+  <div class="qrx-bg" aria-hidden="true"></div>
+  <div class="wrap">
+    ${sh("06", "Design system", "A system", "to carry.")}
+    <p class="qp-p reveal">${esc(c.system.intro)}</p>
+    <div class="qp-ramp reveal">${c.system.ramp.map(([k, v], i) => `<div style="--c:${v};--i:${i}"><span>${k}</span><code>${v}</code></div>`).join("")}</div>
+    <div class="qp-rules">${c.system.rules.map(([l, x], i) => `<div class="reveal" style="--d:${i * 90}ms"><strong>${esc(l)}</strong><p>${esc(x)}</p></div>`).join("")}</div>
+    <h3 class="qp-h3 reveal">Built not to fail quietly</h3>
+    <div class="qp-rules">${c.engineering.map(([l, x], i) => `<div class="reveal" style="--d:${i * 90}ms"><strong>${esc(l)}</strong><p>${esc(x)}</p></div>`).join("")}</div>
+    <ul class="qp-stackl reveal">${c.stack.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>
+  </div>
+</section>
+
+<section class="qp-end qrx">
+  <div class="qrx-bg" aria-hidden="true"></div>
+  <div class="wrap qp-egrid">
+    <div>
+      <p class="qp-k reveal"><span>→</span>It's live</p>
+      <h2 class="disp qp-eh mask"><span>Go make</span></h2>
+      <h2 class="disp qp-eh mask"><span><em>a code.</em></span></h2>
+      <p class="qp-p reveal">${esc(c.demo)}</p>
+      <div class="qrx-cta reveal"><a class="btn qrx-btn magnetic" href="${c.live}" target="_blank" rel="noopener">${esc(c.liveLabel)} <span aria-hidden="true">↗</span></a><a class="btn line magnetic" href="mailto:${esc(profile.email)}">Email me</a></div>
+    </div>
+    <a class="qp-ecode reveal" href="${c.live}" target="_blank" rel="noopener" aria-label="Open QR Raj"><div class="qrs on">${end.svg}</div><span>Point your camera here</span></a>
+  </div>
+  <div class="wrap"><a class="next-case qp-next reveal" href="erp.html"><span class="mono">Next case study</span><strong class="disp">${esc((projects.find((p) => p.case === "erp") || {}).title || "ERP")}</strong><span aria-hidden="true">→</span></a></div>
+</section>
+</div>
 <script src="${r}qr.js" defer></script><script src="${r}qr-studio.js" defer></script>
 ${footer(r)}`;
 };
